@@ -1,0 +1,99 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- 本网盘由Fuk_xiexie制作 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>屑屑云盘</title>
+</head>
+<body>
+    <h1>欢迎使用屑屑公益云盘</h1>
+    
+    <!-- 文件上传表单 -->
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="file">选择文件：</label>
+        <input type="file" id="file" name="file" accept=".txt, .pdf, .docx, .zip" required>
+        <button type="button" onclick="uploadFile()">上传</button>
+    </form>
+
+    <!-- 文件列表展示 -->
+    <h2>文件列表：</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>文件名</th>
+            </tr>
+        </thead>
+        <tbody id="fileList"></tbody>
+    </table>
+
+    <!-- 刷新按钮 -->
+    <button onclick="updateFileList()">刷新文件列表</button>
+
+    <!-- 搜索框 -->
+    <label for="search">搜索文件：</label>
+    <input type="text" id="search" oninput="searchFiles()" placeholder="输入文件名">
+
+    <script>
+        // 使用 AJAX 获取文件列表并更新页面
+        function updateFileList() {
+            const fileListContainer = document.getElementById('fileList');
+            // 发送 AJAX 请求
+            fetch('/fileList')
+                .then(response => response.json())
+                .then(data => {
+                    fileListContainer.innerHTML = '';
+                    data.files.forEach(file => {
+                        const decodedFileName = decodeURIComponent(file);
+                        const newRow = fileListContainer.insertRow();
+                        const cell = newRow.insertCell(0);
+                        cell.innerHTML = `<a href="/download/${file}" download>${decodedFileName}</a>`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching file list:', error);
+                });
+        }
+
+        window.onload = updateFileList;
+
+        function uploadFile() {
+            const uploadForm = document.getElementById('uploadForm');
+            const formData = new FormData(uploadForm);
+            // 发送 AJAX 请求
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+                updateFileList();
+            })
+            .catch(error => {
+                console.error('Error uploading file:', error);
+            });
+        }
+
+        function searchFiles() {
+            let input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById('search');
+            filter = input.value.toUpperCase();
+            table = document.getElementById('fileList');
+            tr = table.getElementsByTagName('tr');
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName('td')[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = '';
+                    } else {
+                        tr[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

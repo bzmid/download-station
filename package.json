@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "chardet": "^2.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "iconv-lite": "^0.6.3",
+    "jschardet": "^3.0.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}
